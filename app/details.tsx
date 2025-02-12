@@ -1,7 +1,7 @@
-import { titleCase } from "@/utils/text";
-import { getImageUrl } from "@/utils/url";
-import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useCallback } from "react";
+import { titleCase } from "@/lib/utils/text";
+import { getImageUrl } from "@/lib/utils/url";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { FlatList, Image, Text, View } from "react-native";
 
 function DetailsPage() {

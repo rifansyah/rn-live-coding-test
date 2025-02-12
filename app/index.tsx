@@ -1,26 +1,45 @@
+import React, { useCallback, useMemo, useState } from "react";
 import { LISTING_SAMPLES } from "@/mock/listing_samples";
-import { getCategory } from "@/utils/category";
-import { formatCurrency } from "@/utils/currency";
-import { titleCase } from "@/utils/text";
-import { getThumbnailUrl } from "@/utils/url";
+import { getCategory } from "@/lib/utils/category";
+import { formatCurrency } from "@/lib/utils/currency";
+import { titleCase } from "@/lib/utils/text";
+import { getThumbnailUrl } from "@/lib/utils/url";
 import { useRouter } from "expo-router";
-import { useCallback, useMemo } from "react";
 import {
   FlatList,
   Image,
   StyleSheet,
   Text,
   TouchableNativeFeedback,
+  TouchableWithoutFeedback,
   View,
 } from "react-native";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { getBoolean, set } from "@/lib/storage/Storage";
+import { STORAGE_KEYS } from "@/lib/constants/storage-keys";
+import FavoriteIcon from "@/components/FavoriteIcon";
 
 function ItemCard({ item }) {
-  const category = getCategory(item.category);
+  const favoriteStorageKey = STORAGE_KEYS.Favorites + item.id.toString();
+
+  const [isFavorite, setIsFavorite] = useState(getBoolean(favoriteStorageKey));
 
   const router = useRouter();
 
+  const category = getCategory(item.category);
+
+
+  const onPressFavorite = useCallback(() => {
+    set(favoriteStorageKey, !isFavorite);
+    setIsFavorite((prevValue) => !prevValue);
+  }, [isFavorite]);
+
   return (
-    <TouchableNativeFeedback onPress={() => router.push({ pathname: '/details', params: {...item, ...category} })}>
+    <TouchableNativeFeedback
+      onPress={() =>
+        router.push({ pathname: "/details", params: { ...item, ...category } })
+      }
+    >
       <View style={styles.containerItemCard}>
         {item.imgs && (
           <Image
@@ -29,7 +48,10 @@ function ItemCard({ item }) {
           />
         )}
         <View style={{ marginLeft: 8, flex: 1 }}>
-          <Text>{titleCase(category?.en ?? "")}</Text>
+          <View style={{ flexDirection: "row" }}>
+            <Text style={{ flex: 1 }}>{titleCase(category?.en ?? "")}</Text>
+            <FavoriteIcon isFavorite={isFavorite} onPress={onPressFavorite} />
+          </View>
           <Text style={{ marginVertical: 4, flexWrap: "wrap" }}>
             {item.address}
           </Text>
@@ -43,13 +65,18 @@ function ItemCard({ item }) {
   );
 }
 
+const MemoizedItemCard = React.memo(ItemCard);
+
 export default function Index() {
-  const renderItem = useCallback(({ item }) => <ItemCard item={item} />, []);
+  const renderItem = useCallback(
+    ({ item }) => <MemoizedItemCard item={item} />,
+    []
+  );
 
   return (
     <View style={styles.container}>
       <FlatList
-        style={{ width: "100%" }}
+        style={styles.flatlist}
         data={LISTING_SAMPLES}
         renderItem={renderItem}
       />
@@ -72,6 +99,10 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     elevation: 20,
     overflow: "hidden",
+    position: "relative",
+  },
+  flatlist: {
+    width: "100%",
   },
   thumbnailImage: {
     width: 80,
