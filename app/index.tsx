@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { LISTING_SAMPLES } from "@/mock/listing_samples";
 import { getCategory } from "@/lib/utils/category";
 import { formatCurrency } from "@/lib/utils/currency";
@@ -11,10 +11,8 @@ import {
   StyleSheet,
   Text,
   TouchableNativeFeedback,
-  TouchableWithoutFeedback,
   View,
 } from "react-native";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { getBoolean, set } from "@/lib/storage/Storage";
 import { STORAGE_KEYS } from "@/lib/constants/storage-keys";
 import FavoriteIcon from "@/components/FavoriteIcon";
@@ -27,7 +25,6 @@ function ItemCard({ item }) {
   const router = useRouter();
 
   const category = getCategory(item.category);
-
 
   const onPressFavorite = useCallback(() => {
     set(favoriteStorageKey, !isFavorite);
